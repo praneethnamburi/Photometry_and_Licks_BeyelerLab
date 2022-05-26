@@ -20,6 +20,8 @@ class Bout:
 
     def bout_classes(self):
         timestamps = self._timestamps
+        if timestamps.size == 0:
+            return []
         bout_list = np.zeros(timestamps.size, dtype=int)
         bout_list[0] = 1
         curr_bout = 1
@@ -79,6 +81,18 @@ class Dataset(pn.FileManager):
         for file_type in p['file_types'][2:]:
             setattr(self, file_type, read_sig_file(self[file_type][0], p['target_sr'], t_min, t_max))
         
+        # sometimes there is an extra sample in the isos signal, and this code forcefully equalizes the number of samples across modalities (e.g. isos, GCaMP)
+        n_samples = {k: [] for k in self.mouse_names}
+        for file_type in p['file_types'][1:]:
+            for mouse_name in self.mouse_names:
+                n_samples[mouse_name].append(len(getattr(self, file_type)[mouse_name]))
+        
+        for mouse_name in self.mouse_names:
+            n = min(n_samples[mouse_name])
+            for file_type in p['file_types'][1:]:
+                x = getattr(self, file_type)[mouse_name]
+                x._sig = x._sig[:n]
+                
         self.params = pn.dotdict(p)
         self.t_lim = (t_min, t_max)
     
