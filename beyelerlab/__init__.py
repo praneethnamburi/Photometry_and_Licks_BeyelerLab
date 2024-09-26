@@ -54,6 +54,9 @@ class Bout:
     
     def n_events_per_bout(self):
         return list(Counter(self.bout_classes()).values())
+    
+    def average_dur_per_bout(self):
+        return self.bout_dur()/(np.asarray(self.n_events_per_bout())-1)
 
 
 class Dataset(pn.FileManager):
