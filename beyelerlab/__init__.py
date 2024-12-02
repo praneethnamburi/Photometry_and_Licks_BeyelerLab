@@ -120,6 +120,7 @@ def get_mouse_names(fname, col_selector='Mouse'):
 
 def read_sig_file(sig_file, target_sr=30, t_min=None, t_max=None):
     df = pd.read_csv(sig_file)
+    df = df.rename(columns={'SystemTimestamp': 'Timestamp'}) # for new data format
     m_names = get_mouse_names(df)
     t = df['Timestamp'].to_numpy()
     m_data = {}
